@@ -3,7 +3,6 @@ kind: Job
 metadata:
   name: {{ .Release.Name }}-cypress
 spec:
-  backoffLimit: 0
   template:
     metadata:
       labels:
@@ -45,5 +44,5 @@ spec:
             - name: webServiceHost
               value: "{{ .Release.Name }}-webservice"
             - name: webServicePort
-              value: "80"
+              value: "{{ .Values.webservice.service.httpPort }}"
           command: ["/bin/sh", "-c", "./run-tests.sh"]

@@ -51,3 +51,28 @@ spec:
                 configMapKeyRef:
                   name: app-config
                   key: ACTIVEMQ_QUEUE_PREFIX
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_PatientidentifierSettings__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: PatientidentifierUrl
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_InterconnectApiConnectSettings__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KeycloakURL
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_InterconnectApiConnectSettings__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ClientId
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_InterconnectKeyCloakSettings__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KeycloakURL
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_InterconnectKeyCloakSettings__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ClientId

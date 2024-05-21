@@ -6,7 +6,7 @@ spec:
   type: {{ .Values.webservice.service.type }}
   ports:
     - name: http
-      port: 80
-      targetPort: 5000
+      port: {{ .Values.webservice.service.httpPort }}
+      targetPort: {{ .Values.webservice.service.targetPort }}
   selector:
     app: {{ .Release.Name }}-webservice

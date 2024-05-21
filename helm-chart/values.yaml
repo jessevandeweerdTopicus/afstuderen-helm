@@ -71,7 +71,7 @@ webservice:
   service:
     type: ClusterIP
     httpPort: 80
-    port: 5000
+    targetPort: 5000
     
 hubPullSecrets:
   - docker-hub-secret

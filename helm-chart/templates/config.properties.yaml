@@ -2,6 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: app-config
+  labels:
+    app.kubernetes.io/managed-by: "Helm"
+  annotations:
+    meta.helm.sh/release-name: "test"
+    meta.helm.sh/release-namespace: "default"
 data:
   ServiceConnectionString: "Host={{ .Release.Name }}-postgresql;Database=postgres;User ID=postgres;Password=password;Port={{ .Values.postgres.service.pgPort }};Pooling=true;"
   WebServiceConnectionString: "Host={{ .Release.Name }}-postgresql;Database=postgres;User ID=postgres;Password=password;Port={{ .Values.postgres.service.pgPort }};Pooling=true;"
@@ -11,3 +16,6 @@ data:
   ACTIVEMQ_QUEUE_PREFIX: "spreekuur"
   UseMockServer: "true"
   MockServerUrl: "http://{{ .Release.Name }}-mockserver:2525"
+  KeycloakURL: "https://test.login.topicuszorg.nl/"
+  ClientId: "vip-client-credentials"
+  PatientidentifierUrl: "https://pi.test.login.topicuszorg.nl/"

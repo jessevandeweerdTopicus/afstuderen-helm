@@ -14,7 +14,6 @@ spec:
     spec:
       imagePullSecrets:
         - name: cloudsmith-pull-secret
-{{/*        - name: docker-hub-secret*/}}
       containers:
         - name: {{ .Release.Name }}-service
           image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
@@ -32,16 +31,6 @@ spec:
                 secretKeyRef:
                   name: cloudsmith-secret
                   key: password
-{{/*            - name: DOCKER_USER*/}}
-{{/*              valueFrom:*/}}
-{{/*                secretKeyRef:*/}}
-{{/*                  name: docker-hub-secret*/}}
-{{/*                  key: username*/}}
-{{/*            - name: DOCKER_PASS*/}}
-{{/*              valueFrom:*/}}
-{{/*                secretKeyRef:*/}}
-{{/*                  name: docker-hub-secret*/}}
-{{/*                  key: password*/}}
             - name: ConnectionStrings__SpreekuurUitnodigingenConnection
               valueFrom:
                 configMapKeyRef:
