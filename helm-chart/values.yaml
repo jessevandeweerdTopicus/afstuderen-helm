@@ -1,0 +1,82 @@
+terminationGracePeriodSeconds: 5
+
+activemq:
+  image:
+    repository: docker.io/rmohr/activemq
+    tag: "5.15.9-alpine"
+  service:
+    type: ClusterIP
+    adminPort: 8161
+    tcpPort: 61616
+
+#cypress:
+#  image:
+#    repository: docker.cloudsmith.io/topicus-healthcare/viplive/spreekuur-test
+#    tag: "1.0.0"
+    
+cypress:
+  image:
+    repository: jrvdwtop/spreekuur-cypress-test
+    tag: "latest"    
+    
+migrations:
+  image:
+    repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen-migrations
+    tag: "1.13.0.60-2404251052-768eaa0-Unstable"
+    
+#mockserver:
+#  image:
+#    repository: docker.cloudsmith.io/topicus-healthcare/viplive/spreekuur-mockserver
+#    tag: "1.0.0"
+#  service:
+#    type: ClusterIP
+#    port: 2525
+    
+mockserver:
+  image:
+    repository: jrvdwtop/mockserver
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 2525
+       
+postgres:
+  image:
+    repository: postgres
+    tag: "latest"
+  service:
+    type: ClusterIP
+    pgPort: 5432
+
+service:
+  image:
+    repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen-service
+    tag: "1.13.0.60-2404251052-768eaa0-Unstable"
+  service:
+    type: ClusterIP
+    httpPort: 80
+
+#service:
+#  image:
+#    repository: jrvdwtop/service
+#    tag: "latest"
+#  service:
+#    type: ClusterIP
+#    httpPort: 80
+
+webservice:
+  image:
+    repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen
+    tag: "1.13.0.60-2404251052-768eaa0-Unstable"
+  service:
+    type: ClusterIP
+    httpPort: 80
+    port: 5000
+    
+hubPullSecrets:
+  - docker-hub-secret
+
+clientSettings:
+  tokenUrl: https://test.login.topicuszorg.nl/auth/realms/Apps/protocol/openid-connect/token
+  clientId: vip-client-credentials
+  clientSecret: 00000000-0000-0000-0000-000000000001  

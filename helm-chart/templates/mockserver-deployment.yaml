@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-mockserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-mockserver
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-mockserver
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      imagePullSecrets:
+          - name: cloudsmith-pull-secret
+      containers:
+        - name: {{ .Release.Name }}-mockserver
+          image: "{{ .Values.mockserver.image.repository }}:{{ .Values.mockserver.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.mockserver.service.port }}
+              name: port
+          env:
+            - name: CLOUDSMITH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsmith-secret
+                  key: username
+            - name: CLOUDSMITH_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsmith-secret
+                  key: password

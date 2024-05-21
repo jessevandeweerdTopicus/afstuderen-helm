@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-cypress
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-cypress
+    spec:
+      imagePullSecrets:
+        - name: cloudsmith-pull-secret
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-migrations
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              until nslookup {{ .Release.Name }}-postgresql.default.svc.cluster.local && nc -z {{ .Release.Name }}-postgresql.default.svc.cluster.local 5432; do
+                echo "Waiting for postgresql to be ready..."
+                sleep 2
+              done
+      containers:
+        - name: {{ .Release.Name }}-cypress
+          image: "{{ .Values.cypress.image.repository }}:{{ .Values.cypress.image.tag }}"
+          imagePullPolicy: Always
+          env:
+            - name: TOKEN_URL
+              value: "{{ .Values.clientSettings.tokenUrl }}"
+            - name: CLIENT_ID
+              value: "{{ .Values.clientSettings.clientId }}"
+            - name: CLIENT_SECRET
+              value: "{{ .Values.clientSettings.clientSecret }}"
+            - name: activeMQHost
+              value: "{{ .Release.Name }}-activemq"
+            - name: activeMQPort
+              value: "{{ .Values.activemq.service.adminPort }}"
+            - name: mockserverHost
+              value: "{{ .Release.Name }}-mockserver"
+            - name: mockserverPort
+              value: "{{ .Values.mockserver.service.port }}"
+            - name: webServiceHost
+              value: "{{ .Release.Name }}-webservice"
+            - name: webServicePort
+              value: "80"
+          command: ["/bin/sh", "-c", "./run-tests.sh"]

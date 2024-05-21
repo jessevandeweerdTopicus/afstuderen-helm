@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  ServiceConnectionString: "Host={{ .Release.Name }}-postgresql;Database=postgres;User ID=postgres;Password=password;Port={{ .Values.postgres.service.pgPort }};Pooling=true;"
+  WebServiceConnectionString: "Host={{ .Release.Name }}-postgresql;Database=postgres;User ID=postgres;Password=password;Port={{ .Values.postgres.service.pgPort }};Pooling=true;"
+  MigrationsConnectionString: "Host={{ .Release.Name }}-postgresql;Database=postgres;User ID=postgres;Password=password;Port={{ .Values.postgres.service.pgPort }};Pooling=true;"
+  ACTIVEMQ_PROTOCOL: "activemq:tcp"
+  ACTIVEMQ_HOST: "{{ .Release.Name }}-activemq"
+  ACTIVEMQ_QUEUE_PREFIX: "spreekuur"
+  UseMockServer: "true"
+  MockServerUrl: "http://{{ .Release.Name }}-mockserver:2525"
