@@ -24,6 +24,11 @@ migrations:
     repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen-migrations
     tag: "1.13.0.60-2404251052-768eaa0-Unstable"
     
+#migrations:
+#  image:
+#    repository: jrvdwtop/spreekuur-migrations
+#    tag: "latest"
+    
 #mockserver:
 #  image:
 #    repository: docker.cloudsmith.io/topicus-healthcare/viplive/spreekuur-mockserver
