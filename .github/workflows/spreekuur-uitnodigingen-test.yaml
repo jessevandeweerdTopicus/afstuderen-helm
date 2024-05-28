@@ -37,6 +37,19 @@ jobs:
       - name: Install Helm
         run: |
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          
+      - name: Create cloudsmith-secret
+        run: |
+          kubectl create secret generic cloudsmith-secret \
+          --from-literal=username=${{ secrets.CLOUDSMITH_USERNAME }} \
+          --from-literal=password=${{ secrets.CLOUDSMITH_PASSWORD }}
+          
+      - name: Create cloudsmith-pull-secret
+        run: |
+          echo "${{ secrets.CLOUDSMITH_DOCKERCONFIGJSON }}" > .dockerconfigjson
+          kubectl create secret generic cloudsmith-pull-secret \
+          --from-file=.dockerconfigjson=.dockerconfigjson
+          rm .dockerconfigjson
 
       - name: Deploy Helm Chart
         run: |
