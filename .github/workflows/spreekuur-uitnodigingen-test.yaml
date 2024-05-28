@@ -53,6 +53,7 @@ jobs:
       - name: Login to Cloudsmith
         uses: docker/login-action@v2
         with:
+          registry: docker.cloudsmith.io/topicus-healthcare/viplive
           username: ${{ secrets.CLOUDSMITH_USERNAME }}
           password: ${{ secrets.CLOUDSMITH_PASSWORD }}
 
