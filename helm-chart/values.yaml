@@ -19,6 +19,11 @@ cypress:
     repository: jrvdwtop/spreekuur-cypress-test
     tag: "latest"    
     
+filler:
+  image:
+    repository: jrvdwtop/spreekuur-filler
+    tag: "latest"
+    
 migrations:
   image:
     repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen-migrations

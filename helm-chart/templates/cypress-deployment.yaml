@@ -8,18 +8,27 @@ spec:
       labels:
         app: {{ .Release.Name }}-cypress
     spec:
+      serviceAccountName: {{ .Release.Name }}-cypress-sa  # Ensure the service account is specified
       imagePullSecrets:
         - name: cloudsmith-pull-secret
       restartPolicy: Never
       initContainers:
         - name: wait-for-migrations
-          image: busybox
+          image: bitnami/kubectl:latest
           command:
             - sh
             - -c
             - |
-              until nslookup {{ .Release.Name }}-postgresql.default.svc.cluster.local && nc -z {{ .Release.Name }}-postgresql.default.svc.cluster.local 5432; do
-                echo "Waiting for postgresql to be ready..."
+              while true; do
+                status=$(kubectl get job {{ .Release.Name }}-filler -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' 2>&1)
+                if [ "$status" = "True" ]; then
+                  echo "Filler job completed."
+                  break
+                elif echo "$status" | grep -q "NotFound"; then
+                  echo "Filler job not found."
+                else
+                  echo "Waiting for filler job to complete..."
+                fi
                 sleep 2
               done
       containers:

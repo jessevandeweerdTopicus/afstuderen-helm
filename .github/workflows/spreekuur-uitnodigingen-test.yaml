@@ -1,8 +1,9 @@
-name: Deploy Helm Chart
+name: Deploy Helm Chart and Run Cypress Tests
 
 on:
   schedule:
     - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -12,55 +13,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Kubernetes
-        uses: azure/setup-kubectl@v1
-        with:
-          version: 'latest'
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v1
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v1
-        with:
-          version: 'latest'
+      - name: Install Minikube
+        run: |
+          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          chmod +x minikube
+          sudo mv minikube /usr/local/bin/
 
-      - name: Configure kubectl
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        run: echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+      - name: Start Minikube
+        run: |
+          minikube start --driver=docker
+          minikube status
+
+      - name: Set up kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          kubectl config use-context minikube
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
       - name: Deploy Helm Chart
-        run: helm upgrade --install spreekuur-uitnodigingen-test helm-chart
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          helm upgrade --install spreekuur-uitnodigingen-test ./helm-chart
+          kubectl rollout status deployment/some-deployment --namespace default
+
+      - name: Wait for Cypress job to complete
+        run: |
+          kubectl wait --for=condition=complete --timeout=600s pod -l app=spreekuur-uitnodigingen-test-cypress --namespace default
 
       - name: Run Cypress tests
         uses: cypress-io/github-action@v2
         with:
-          record: true
           group: 'End-to-End Tests'
-        env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-  
-  cleanup:
-    runs-on: ubuntu-latest
-    needs: deploy
-    steps:
-      - name: Set up Kubernetes
-        uses: azure/setup-kubectl@v1
-        with:
-          version: 'latest'
-      - name: Configure kubectl
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-        run: echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
-
-      - name: Wait for Cypress job to complete
-        id: wait_for_completion
-        run: |
-          echo "Waiting for Cypress job to complete..."
-          kubectl wait --for=condition=complete --timeout=600s job/{{ steps.deploy.outputs.release_name }}-cypress
-
-      - name: Uninstall Helm Chart
-        if: ${{ steps.wait_for_completion.outcome == 'success' }}
-        run: helm uninstall spreekuur-uitnodigingen-test
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
