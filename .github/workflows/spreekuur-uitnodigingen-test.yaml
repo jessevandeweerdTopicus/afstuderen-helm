@@ -38,25 +38,27 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
           
+      - name: Login to Cloudsmith
+        uses: docker/login-action@v2
+        with:
+          registry: docker.cloudsmith.io/topicus-healthcare/viplive
+          username: ${{ secrets.CLOUDSMITH_USERNAME }}
+          password: ${{ secrets.CLOUDSMITH_PASSWORD }}   
+          
       - name: Create cloudsmith-secret
         run: |
           kubectl create secret generic cloudsmith-secret \
           --from-literal=username=${{ secrets.CLOUDSMITH_USERNAME }} \
           --from-literal=password=${{ secrets.CLOUDSMITH_PASSWORD }}
-          
+
       - name: Create cloudsmith-pull-secret
         run: |
-          kubectl create secret generic cloudsmith-pull-secret \
-          --from-literal=username=${{ secrets.CLOUDSMITH_USERNAME }} \
-          --from-literal=password=${{ secrets.CLOUDSMITH_PASSWORD }}
+          kubectl create secret docker-registry cloudsmith-pull-secret \
+          --docker-server=${{ secrets.CLOUDSMITH_Server }} \
+          --docker-username=${{ secrets.CLOUDSMITH_USERNAME }} \
+          --docker-password=${{ secrets.CLOUDSMITH_PASSWORD }} \
+          --docker-email=${{ secrets.CLOUDSMITH_EMAIL }}
           
-#      - name: Login to Cloudsmith
-#        uses: docker/login-action@v2
-#        with:
-#          registry: docker.cloudsmith.io/topicus-healthcare/viplive
-#          username: ${{ secrets.CLOUDSMITH_USERNAME }}
-#          password: ${{ secrets.CLOUDSMITH_PASSWORD }}
-
       - name: Deploy Helm Chart
         run: |
           helm upgrade --install spreekuur-uitnodigingen-test ./helm-chart
