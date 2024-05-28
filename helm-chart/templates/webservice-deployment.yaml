@@ -12,8 +12,8 @@ spec:
       labels:
         app: {{ .Release.Name }}-webservice
     spec:
-{{/*      imagePullSecrets:*/}}
-{{/*        - name: cloudsmith-pull-secret*/}}
+      imagePullSecrets:
+        - name: cloudsmith-pull-secret
       containers:
         - name: {{ .Release.Name }}-webservice
           image: "{{ .Values.webservice.image.repository }}:{{ .Values.webservice.image.tag }}"
