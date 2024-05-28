@@ -53,14 +53,13 @@ jobs:
 
       - name: Deploy Helm Chart
         run: |
-          helm upgrade --install spreekuur-uitnodigingen-test ./helm-chart          
-          kubectl rollout status deployment/spreekuur-uitnodigingen-test-activemq --namespace default
-          kubectl rollout status deployment/spreekuur-uitnodigingen-test-service --namespace default
-          kubectl rollout status deployment/spreekuur-uitnodigingen-test-webservice --namespace default
-          kubectl rollout status deployment/spreekuur-uitnodigingen-test-postgresql --namespace default
-          kubectl rollout status deployment/spreekuur-uitnodigingen-test-mockserver --namespace default
-          kubectl rollout status deployment/spreekuur-uitnodigingen-test-filler --namespace default
-          kubectl rollout status deployment/spreekuur-uitnodigingen-test-cypress --namespace default
+          helm upgrade --install spreekuur-uitnodigingen-test ./helm-chart
+
+      - name: Check for pod failures
+        if: failure()
+        run: |
+          kubectl get pods --all-namespaces
+          kubectl describe pods --all-namespaces | grep -A 10 -i "image pull"
 
       - name: Wait for Cypress job to complete
         run: |
