@@ -44,12 +44,18 @@ jobs:
           --from-literal=username=${{ secrets.CLOUDSMITH_USERNAME }} \
           --from-literal=password=${{ secrets.CLOUDSMITH_PASSWORD }}
           
-      - name: Create cloudsmith-pull-secret
+      - name: Create cloudsmith-secret
         run: |
-          echo "${{ secrets.CLOUDSMITH_DOCKERCONFIGJSON }}" > .dockerconfigjson
           kubectl create secret generic cloudsmith-pull-secret \
-          --from-file=.dockerconfigjson=.dockerconfigjson
-          rm .dockerconfigjson
+          --from-literal=username=${{ secrets.CLOUDSMITH_USERNAME }} \
+          --from-literal=password=${{ secrets.CLOUDSMITH_PASSWORD }}    
+          
+#      - name: Login to Cloudsmith
+#        uses: docker/login-action@v2
+#        with:
+#          registry: ${{ env.CLOUDSMITH_REGISTRY }}
+#          username: ${{ secrets.CLOUDSMITH_USERNAME }}
+#          password: ${{ secrets.CLOUDSMITH_PASSWORD }}
 
       - name: Deploy Helm Chart
         run: |
