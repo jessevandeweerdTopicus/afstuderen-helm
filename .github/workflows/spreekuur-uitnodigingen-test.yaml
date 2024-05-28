@@ -54,7 +54,7 @@ jobs:
       - name: Deploy Helm Chart
         run: |
           helm upgrade --install spreekuur-uitnodigingen-test ./helm-chart
-          sleep 20
+          sleep 60
           kubectl get all
           kubectl describe pod -l app=spreekuur-uitnodigingen-test-webservice --namespace default
 
