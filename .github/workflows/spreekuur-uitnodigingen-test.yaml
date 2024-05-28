@@ -44,7 +44,7 @@ jobs:
           --from-literal=username=${{ secrets.CLOUDSMITH_USERNAME }} \
           --from-literal=password=${{ secrets.CLOUDSMITH_PASSWORD }}
           
-      - name: Create cloudsmith-secret
+      - name: Create cloudsmith-pull-secret
         run: |
           kubectl create secret generic cloudsmith-pull-secret \
           --from-literal=username=${{ secrets.CLOUDSMITH_USERNAME }} \
