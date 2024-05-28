@@ -27,7 +27,7 @@ filler:
 migrations:
   image:
     repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen-migrations
-    tag: "1.13.0.60-2404251052-768eaa0-Unstable"
+    tag: "1.14.0-6f56319"
     
 #migrations:
 #  image:
@@ -61,7 +61,7 @@ postgres:
 service:
   image:
     repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen-service
-    tag: "1.13.0.60-2404251052-768eaa0-Unstable"
+    tag: "1.14.0-6f56319"
   service:
     type: ClusterIP
     httpPort: 80
@@ -77,7 +77,7 @@ service:
 webservice:
   image:
     repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen
-    tag: "1.13.0.60-2404251052-768eaa0-Unstable"
+    tag: "1.14.0-6f56319"
   service:
     type: ClusterIP
     httpPort: 80
