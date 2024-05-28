@@ -66,12 +66,6 @@ jobs:
           pod_name=$(kubectl get pod -l app=spreekuur-uitnodigingen-test-webservice -o jsonpath="{.items[0].metadata.name}" --namespace default)
           kubectl logs $pod_name --namespace default
 
-      - name: Check for pod failures
-        if: failure()
-        run: |
-          kubectl get pods --all-namespaces
-          kubectl describe pods --all-namespaces | grep -A 10 -i "image pull"
-
       - name: Wait for Cypress job to complete
         run: |
           kubectl wait --for=condition=complete --timeout=600s pod -l app=spreekuur-uitnodigingen-test-cypress --namespace default
