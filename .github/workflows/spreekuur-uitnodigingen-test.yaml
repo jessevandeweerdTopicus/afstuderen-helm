@@ -54,6 +54,7 @@ jobs:
       - name: Deploy Helm Chart
         run: |
           helm upgrade --install spreekuur-uitnodigingen-test ./helm-chart
+          kubectl get all
 
       - name: Check for pod failures
         if: failure()
