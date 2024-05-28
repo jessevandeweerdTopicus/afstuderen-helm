@@ -41,7 +41,7 @@ jobs:
       - name: Deploy Helm Chart
         run: |
           helm upgrade --install spreekuur-uitnodigingen-test ./helm-chart
-          kubectl rollout status deployment/some-deployment --namespace default
+          kubectl rollout status deployment/spreekuur-uitnodigingen-test-activemq --namespace default
 
       - name: Wait for Cypress job to complete
         run: |
