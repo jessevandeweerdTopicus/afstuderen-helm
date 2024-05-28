@@ -44,11 +44,11 @@ jobs:
           --from-literal=username=${{ secrets.CLOUDSMITH_USERNAME }} \
           --from-literal=password=${{ secrets.CLOUDSMITH_PASSWORD }}
           
-#      - name: Create cloudsmith-secret
-#        run: |
-#          kubectl create secret generic cloudsmith-pull-secret \
-#          --from-literal=username=${{ secrets.CLOUDSMITH_USERNAME }} \
-#          --from-literal=password=${{ secrets.CLOUDSMITH_PASSWORD }}    
+      - name: Create cloudsmith-secret
+        run: |
+          kubectl create secret generic cloudsmith-pull-secret \
+          --from-literal=username=${{ secrets.CLOUDSMITH_USERNAME }} \
+          --from-literal=password=${{ secrets.CLOUDSMITH_PASSWORD }}    
           
       - name: Login to Cloudsmith
         uses: docker/login-action@v2
