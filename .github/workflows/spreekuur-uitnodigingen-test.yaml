@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    
+env:
+  CLOUDSMITH_REGISTRY: docker.cloudsmith.io
 
 jobs:
   deploy:
@@ -41,7 +44,7 @@ jobs:
       - name: Login to Cloudsmith
         uses: docker/login-action@v2
         with:
-          registry: docker.cloudsmith.io/topicus-healthcare/viplive
+          registry: ${{ env.CLOUDSMITH_REGISTRY }}
           username: ${{ secrets.CLOUDSMITH_USERNAME }}
           password: ${{ secrets.CLOUDSMITH_PASSWORD }}   
           
@@ -54,14 +57,15 @@ jobs:
       - name: Create cloudsmith-pull-secret
         run: |
           kubectl create secret docker-registry cloudsmith-pull-secret \
-          --docker-server=${{ secrets.CLOUDSMITH_SERVER }} \
+          --docker-server=${{ env.CLOUDSMITH_REGISTRY }} \
           --docker-username=${{ secrets.CLOUDSMITH_USERNAME }} \
-          --docker-password=${{ secrets.CLOUDSMITH_PASSWORD }} \
-          --docker-email=${{ secrets.CLOUDSMITH_EMAIL }}
+          --docker-password=${{ secrets.CLOUDSMITH_PASSWORD }}
           
       - name: Deploy Helm Chart
         run: |
           helm upgrade --install spreekuur-uitnodigingen-test ./charts/run-cypress
+          sleep 60
+          kubectl get all
 
       - name: Wait for Cypress job to complete
         run: |
