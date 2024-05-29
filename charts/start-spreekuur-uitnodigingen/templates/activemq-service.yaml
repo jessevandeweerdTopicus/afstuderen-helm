@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-activemq
+spec:
+  type: {{ .Values.activemq.service.type }}
+  ports:
+    - name: admin
+      port: {{ .Values.activemq.service.adminPort }}
+      targetPort: admin
+    - name: tcp
+      port: {{ .Values.activemq.service.tcpPort }}
+      targetPort: tcp  
+  selector:
+    app: {{ .Release.Name }}-activemq

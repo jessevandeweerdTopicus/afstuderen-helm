@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-activemq
+  labels:
+    app: {{ .Release.Name }}-activemq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-activemq
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-activemq
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-activemq
+          image: "{{ .Values.activemq.image.repository }}:{{ .Values.activemq.image.tag }}"
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: {{ .Values.activemq.service.adminPort }}
+              name: admin
+            - containerPort: {{ .Values.activemq.service.tcpPort }}
+              name: tcp

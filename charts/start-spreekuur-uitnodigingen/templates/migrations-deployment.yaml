@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-migrations
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-migrations
+    spec:
+      imagePullSecrets:
+          - name: cloudsmith-pull-secret
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-postgresql
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              until nslookup {{ .Release.Name }}-postgresql.default.svc.cluster.local && nc -z {{ .Release.Name }}-postgresql.default.svc.cluster.local 5432; do
+                echo "Waiting for PostgreSQL to be ready..."
+                sleep 2
+              done
+      containers:
+        - name: {{ .Release.Name }}-migrations
+          image: "{{ .Values.migrations.image.repository }}:{{ .Values.migrations.image.tag }}"
+          env:
+            - name: CLOUDSMITH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsmith-secret
+                  key: username
+            - name: CLOUDSMITH_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsmith-secret
+                  key: password
+            - name: ConnectionStrings__VipLiveSpreekuurUitnodigingenDatabase_EfMigrations
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MigrationsConnectionString

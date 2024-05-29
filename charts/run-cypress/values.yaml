@@ -82,9 +82,6 @@ webservice:
     type: ClusterIP
     httpPort: 80
     targetPort: 5000
-    
-hubPullSecrets:
-  - docker-hub-secret
 
 clientSettings:
   tokenUrl: https://test.login.topicuszorg.nl/auth/realms/Apps/protocol/openid-connect/token

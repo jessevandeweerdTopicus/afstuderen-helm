@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-webservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-webservice
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-webservice
+    spec:
+      imagePullSecrets:
+        - name: cloudsmith-pull-secret
+      containers:
+        - name: {{ .Release.Name }}-webservice
+          image: "{{ .Values.webservice.image.repository }}:{{ .Values.webservice.image.tag }}"
+          ports:
+            - containerPort: 5000
+          env:
+            - name: CLOUDSMITH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsmith-secret
+                  key: username
+            - name: CLOUDSMITH_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsmith-secret
+                  key: password
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_ConnectionStrings__SpreekuurUitnodigingenConnection
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: WebServiceConnectionString
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_ActiveMQ__Protocol
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ACTIVEMQ_PROTOCOL
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_ActiveMQ__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ACTIVEMQ_HOST
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_ActiveMQ__SpreekuurQueuePrefix
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ACTIVEMQ_QUEUE_PREFIX
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_PatientidentifierSettings__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: PatientidentifierUrl
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_InterconnectApiConnectSettings__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KeycloakURL
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_InterconnectApiConnectSettings__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ClientId
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_InterconnectKeyCloakSettings__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KeycloakURL
+            - name: VIPLIVE_Spreekuur_Uitnodigingen_InterconnectKeyCloakSettings__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ClientId

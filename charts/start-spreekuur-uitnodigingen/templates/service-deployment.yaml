@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-service
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-service
+    spec:
+      imagePullSecrets:
+        - name: cloudsmith-pull-secret
+      containers:
+        - name: {{ .Release.Name }}-service
+          image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.service.httpPort }}
+          env:
+            - name: CLOUDSMITH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsmith-secret
+                  key: username
+            - name: CLOUDSMITH_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsmith-secret
+                  key: password
+            - name: ConnectionStrings__SpreekuurUitnodigingenConnection
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ServiceConnectionString
+            - name: ActiveMQ__Protocol
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ACTIVEMQ_PROTOCOL
+            - name: ActiveMQ__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: ACTIVEMQ_HOST
+            - name: ActiveMQ__Port
+              value: "{{ .Values.activemq.service.tcpPort }}"
+            - name: Mockserver__UseTestMockServer
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: UseMockServer
+            - name: Mockserver__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MockServerUrl

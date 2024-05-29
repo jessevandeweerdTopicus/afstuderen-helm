@@ -8,7 +8,7 @@ spec:
       labels:
         app: {{ .Release.Name }}-filler
     spec:
-      serviceAccountName: {{ .Release.Name }}-filler-sa  # Use a service account with appropriate permissions
+      serviceAccountName: {{ .Release.Name }}-filler-sa 
       restartPolicy: Never
       initContainers:
         - name: wait-for-migrations

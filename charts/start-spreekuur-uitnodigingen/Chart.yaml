@@ -1,0 +1,6 @@
+apiVersion: v2
+name: spreekuur-uitnodigingen
+description: A Helm chart for starting spreekuur-uitnodigingen
+type: application
+version: 1.0.0
+appVersion: "1.14.0-6f56319"

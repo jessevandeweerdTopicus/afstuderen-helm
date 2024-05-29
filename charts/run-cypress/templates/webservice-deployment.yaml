@@ -19,7 +19,6 @@ spec:
           image: "{{ .Values.webservice.image.repository }}:{{ .Values.webservice.image.tag }}"
           ports:
             - containerPort: 5000
-{{/*              name: http*/}}
           env:
             - name: CLOUDSMITH_USER
               valueFrom:

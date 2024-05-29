@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-filler
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-filler
+    spec:
+      serviceAccountName: {{ .Release.Name }}-filler-sa
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-migrations
+          image: bitnami/kubectl:latest
+          command:
+            - sh
+            - -c
+            - |
+              while true; do
+                status=$(kubectl get job {{ .Release.Name }}-migrations -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' 2>&1)
+                if [ "$status" = "True" ]; then
+                  echo "Migrations job completed."
+                  break
+                elif [[ "$status" == *"NotFound"* ]]; then
+                  echo "Migrations job not found."
+                else
+                  echo "Waiting for migrations job to complete..."
+                fi
+                sleep 2
+              done
+      containers:
+        - name: db-filler
+          image: "{{ .Values.filler.image.repository }}:{{ .Values.filler.image.tag }}"
+          env:
+            - name: POSTGRES_HOST
+              value: "{{ .Release.Name }}-postgresql"
+            - name: POSTGRES_PORT
+              value: "{{ .Values.postgres.service.pgPort }}"
+            - name: POSTGRES_DB
+              value: "postgres"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "password"

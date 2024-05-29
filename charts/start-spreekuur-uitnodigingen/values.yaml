@@ -1,0 +1,61 @@
+terminationGracePeriodSeconds: 5
+
+activemq:
+  image:
+    repository: docker.io/rmohr/activemq
+    tag: "5.15.9-alpine"
+  service:
+    type: ClusterIP
+    adminPort: 8161
+    tcpPort: 61616
+    
+filler:
+  image:
+    repository: jrvdwtop/spreekuur-filler
+    tag: "latest"
+    
+migrations:
+  image:
+    repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen-migrations
+    tag: "1.14.0-6f56319"
+    
+#mockserver:
+#  image:
+#    repository: docker.cloudsmith.io/topicus-healthcare/viplive/spreekuur-mockserver
+#    tag: "1.0.0"
+#  service:
+#    type: ClusterIP
+#    port: 2525
+    
+mockserver:
+  image:
+    repository: jrvdwtop/mockserver
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 2525
+       
+postgres:
+  image:
+    repository: postgres
+    tag: "latest"
+  service:
+    type: ClusterIP
+    pgPort: 5432
+
+service:
+  image:
+    repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen-service
+    tag: "1.14.0-6f56319"
+  service:
+    type: ClusterIP
+    httpPort: 80
+
+webservice:
+  image:
+    repository: docker.cloudsmith.io/topicus-healthcare/viplive/viplive-spreekuur-uitnodigingen
+    tag: "1.14.0-6f56319"
+  service:
+    type: ClusterIP
+    httpPort: 80
+    targetPort: 5000
