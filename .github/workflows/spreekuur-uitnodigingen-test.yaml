@@ -61,12 +61,14 @@ jobs:
           
       - name: Deploy Helm Chart
         run: |
-          helm upgrade --install spreekuur-uitnodigingen-test ./helm-chart
+          helm upgrade --install spreekuur-uitnodigingen-test ./charts/run-cypress
           sleep 60
           kubectl get all
           kubectl describe pod -l app=spreekuur-uitnodigingen-test-webservice --namespace default
           pod_name=$(kubectl get pod -l app=spreekuur-uitnodigingen-test-webservice -o jsonpath="{.items[0].metadata.name}" --namespace default)
           kubectl logs $pod_name --namespace default
+          sleep 10
+          kubectl get all
 
       - name: Wait for Cypress job to complete
         run: |
