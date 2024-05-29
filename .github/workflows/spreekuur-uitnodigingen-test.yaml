@@ -65,6 +65,7 @@ jobs:
 
       - name: Wait for Cypress job to complete
         run: |
+          sleep 10
           kubectl wait --for=condition=complete --timeout=600s pod -l app=spreekuur-uitnodigingen-test-cypress --namespace default
 
       - name: Run Cypress tests
