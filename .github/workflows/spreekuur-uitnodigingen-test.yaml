@@ -66,11 +66,13 @@ jobs:
           helm upgrade --install spreekuur-uitnodigingen-test ./charts/run-cypress
           sleep 60
           kubectl get all
+          sleep 60
+          kubectl get all
 
       - name: Wait for Cypress job to complete
         run: |
           sleep 10
-          kubectl wait --for=condition=complete --timeout=600s pod -l app=spreekuur-uitnodigingen-test-cypress --namespace default
+          kubectl wait --for=condition=complete pod -l app=spreekuur-uitnodigingen-test-cypress --namespace default
 
       - name: Run Cypress tests
         uses: cypress-io/github-action@v2
