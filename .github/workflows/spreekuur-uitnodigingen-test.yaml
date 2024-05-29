@@ -9,13 +9,17 @@ env:
   CLOUDSMITH_REGISTRY: docker.cloudsmith.io
 
 jobs:
-  deploy:
+  checkout-code:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
+  
+  set-up-cluster:
+    runs-on: ubuntu-latest
+    
+    steps:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v1
 
@@ -40,7 +44,11 @@ jobs:
       - name: Install Helm
         run: |
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-          
+  
+  set-up-cloudsmith:
+    runs-on: ubuntu-latest   
+    
+    steps:
       - name: Login to Cloudsmith
         uses: docker/login-action@v2
         with:
@@ -60,7 +68,11 @@ jobs:
           --docker-server=${{ env.CLOUDSMITH_REGISTRY }} \
           --docker-username=${{ secrets.CLOUDSMITH_USERNAME }} \
           --docker-password=${{ secrets.CLOUDSMITH_PASSWORD }}
-          
+
+  deploy-helm:
+    runs-on: ubuntu-latest
+    
+    steps:          
       - name: Deploy Helm Chart
         run: |
           helm upgrade --install spreekuur-uitnodigingen-test ./charts/run-cypress
@@ -73,8 +85,3 @@ jobs:
         run: |
           sleep 10
           kubectl wait --for=condition=complete pod -l app=spreekuur-uitnodigingen-test-cypress --namespace default
-
-      - name: Run Cypress tests
-        uses: cypress-io/github-action@v2
-        with:
-          group: 'End-to-End Tests'
