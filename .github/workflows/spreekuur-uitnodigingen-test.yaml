@@ -67,7 +67,7 @@ jobs:
       - name: Install Helm Chart
         run: |
           ls -al
-          helm install test ./src/VipLive.Spreekuur.Uitnodigingen.Helm/charts/run-cypress --set filler.image.repository=${{ github.event.inputs.custom_var }}
+          helm install test charts/run-cypress --set filler.image.repository=${{ github.event.inputs.custom_var }}
 
       - name: Wait for Cypress job to initialized
         run: |
