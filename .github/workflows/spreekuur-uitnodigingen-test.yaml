@@ -6,7 +6,7 @@ on:
       custom_var:
         description: 'Filler'
         required: true
-        default: 'filler'
+        default: 'jrvdwtop/spreekuur-filler'
     
 env:
   CLOUDSMITH_REGISTRY: docker.cloudsmith.io
