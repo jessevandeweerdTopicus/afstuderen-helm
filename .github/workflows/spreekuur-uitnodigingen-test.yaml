@@ -1,25 +1,24 @@
-name: Deploy Helm Chart and Run Cypress Tests
+name: spreekuur-uitnodigingen-test
 
 on:
-  schedule:
-    - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      custom_var:
+        description: 'Filler'
+        required: true
+        default: 'filler'
     
 env:
   CLOUDSMITH_REGISTRY: docker.cloudsmith.io
 
 jobs:
-  checkout-code:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-  
-  set-up-cluster:
-    runs-on: ubuntu-latest
-    
-    steps:
+
       - name: Set up Docker
         uses: docker/setup-buildx-action@v1
 
@@ -44,11 +43,7 @@ jobs:
       - name: Install Helm
         run: |
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-  
-  set-up-cloudsmith:
-    runs-on: ubuntu-latest   
-    
-    steps:
+
       - name: Login to Cloudsmith
         uses: docker/login-action@v2
         with:
@@ -69,19 +64,18 @@ jobs:
           --docker-username=${{ secrets.CLOUDSMITH_USERNAME }} \
           --docker-password=${{ secrets.CLOUDSMITH_PASSWORD }}
 
-  deploy-helm:
-    runs-on: ubuntu-latest
-    
-    steps:          
-      - name: Deploy Helm Chart
+      - name: Install Helm Chart
         run: |
-          helm upgrade --install spreekuur-uitnodigingen-test ./charts/run-cypress
-          sleep 60
-          kubectl get all
-          sleep 60
-          kubectl get all
+          helm install test ./src/VipLive.Spreekuur.Uitnodigingen.Helm/charts/run-cypress --set filler.image.repository=${{ github.event.inputs.custom_var }}
+
+      - name: Wait for Cypress job to initialized
+        run: |
+          while ! kubectl get job test-cypress --namespace default; do
+            echo "Waiting for job to be created..."
+            sleep 1
+          done
+          echo "Job created. Waiting for job to complete..."
 
       - name: Wait for Cypress job to complete
         run: |
-          sleep 10
-          kubectl wait --for=condition=complete pod -l app=spreekuur-uitnodigingen-test-cypress --namespace default
+          kubectl wait --for=condition=complete --timeout=600s job/test-cypress --namespace default

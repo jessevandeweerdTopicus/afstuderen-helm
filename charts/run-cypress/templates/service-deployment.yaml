@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-service
+spec:
+  type: {{ .Values.service.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.service.service.httpPort }}
+      targetPort: http
+  selector:
+    app: {{ .Release.Name }}-service
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -48,11 +61,6 @@ spec:
                   key: ACTIVEMQ_HOST
             - name: ActiveMQ__Port
               value: "{{ .Values.activemq.service.tcpPort }}"
-            - name: Mockserver__UseTestMockServer
-              valueFrom:
-                configMapKeyRef:
-                  name: app-config
-                  key: UseMockServer
             - name: Mockserver__Url
               valueFrom:
                 configMapKeyRef:

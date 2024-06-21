@@ -1,3 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-postgresql
+spec:
+  type: {{ .Values.postgres.service.type }}
+  ports:
+    - name: postgresql
+      port: {{ .Values.postgres.service.pgPort }}
+      targetPort: postgresql
+  selector:
+    app: {{ .Release.Name }}-postgresql
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-postgresql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,37 +37,48 @@ spec:
       labels:
         app: {{ .Release.Name }}-postgresql
     spec:
+      initContainers:
+        - name: wait-for-webservice
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              until nslookup {{ .Release.Name }}-webservice.default.svc.cluster.local && nc -z {{ .Release.Name }}-webservice.default.svc.cluster.local 80; do
+                echo "Waiting for webservice to be ready..."
+                sleep 2
+              done
       containers:
-          - name: postgresql
-            image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
-            ports:
-              - name: postgresql
-                containerPort: {{ .Values.postgres.service.pgPort }}
-            env:
-              - name: POSTGRES_USER
-                value: "postgres"
-              - name: POSTGRES_PASSWORD
-                value: "password"
-              - name: POSTGRES_DB
-                value: "postgres"
-            volumeMounts:
-              - name: {{ .Release.Name }}-data
-                mountPath: /var/lib/postgresql/data
-            resources:
-              requests:
-                memory: "512Mi"
-                cpu: "500m"
-              limits:
-                memory: "1Gi"
-                cpu: "1000m"
-            readinessProbe:
-              exec:
-                command:
-                  - sh
-                  - -c
-                  - exec pg_isready --host localhost
-              initialDelaySeconds: 5
-              periodSeconds: 10
+        - name: postgresql
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          ports:
+            - name: postgresql
+              containerPort: {{ .Values.postgres.service.pgPort }}
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "password"
+            - name: POSTGRES_DB
+              value: "postgres"
+          volumeMounts:
+            - name: {{ .Release.Name }}-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready --host localhost
+            initialDelaySeconds: 5
+            periodSeconds: 10
       volumes:
         - name: {{ .Release.Name }}-data
           persistentVolumeClaim:

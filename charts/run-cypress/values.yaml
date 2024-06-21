@@ -19,6 +19,8 @@ cypress:
     repository: jrvdwtop/spreekuur-cypress-test
     tag: "latest"    
     
+fillerAddress: jrvdwtop/spreekuur-filler
+    
 filler:
   image:
     repository: jrvdwtop/spreekuur-filler

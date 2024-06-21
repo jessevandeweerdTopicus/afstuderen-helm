@@ -17,5 +17,7 @@ data:
   UseMockServer: "true"
   MockServerUrl: "http://{{ .Release.Name }}-mockserver:2525"
   KeycloakURL: "https://test.login.topicuszorg.nl/"
-  ClientId: "vip-client-credentials"
   PatientidentifierUrl: "https://pi.test.login.topicuszorg.nl/"
+  TokenUrl: "https://test.login.topicuszorg.nl/auth/realms/Apps/protocol/openid-connect/token"
+  ClientId: "vip-client-credentials"
+  ClientSecret: "00000000-0000-0000-0000-000000000001"

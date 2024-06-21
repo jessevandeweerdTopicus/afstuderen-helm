@@ -9,7 +9,7 @@ spec:
         app: {{ .Release.Name }}-migrations
     spec:
       imagePullSecrets:
-          - name: cloudsmith-pull-secret
+        - name: cloudsmith-pull-secret
       restartPolicy: Never
       initContainers:
         - name: wait-for-postgresql
