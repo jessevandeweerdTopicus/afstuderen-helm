@@ -1,0 +1,94 @@
+name: filler-builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      custom_var:
+        description: 'Filler'
+        required: true
+
+env:
+  BUILD_CONFIGURATION: 'Release'
+  TZ: 'Europe/Amsterdam'
+  OMGEVING: "Unstable"
+  CLOUDSMITH_REGISTRY: docker.cloudsmith.io
+  CLOUDSMITH_REPOSITORY_NAME: docker.cloudsmith.io/topicus-healthcare/viplive
+  CLOUDSMITH_VIPLIVE_SPREEKUUR_UITNODIGINGEN_FILLER_IMAGE: viplive-spreekuur-uitnodigingen-filler
+
+jobs:
+  build-e2e-test:
+    outputs:
+      link-version: ${{ steps.release_info.outputs.releaseName }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: viplive-spreekuur-uitnodigingen-release-${{ github.ref }}
+      cancel-in-progress: true
+    permissions:
+      id-token: write
+      contents: read
+      checks: write
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Set version
+        run: |
+          echo "semVer=$(git describe --tags --abbrev=0).${{github.run_number}}" >> $GITHUB_OUTPUT
+          echo "releaseName=$(git describe --tags --abbrev=0).${{github.run_number}}-$(date +%g%m%d%H%M)-${GITHUB_SHA:0:7}-${{ env.OMGEVING }}" >> $GITHUB_OUTPUT
+        id: release_info
+
+      - name: Display version info
+        run: |
+          echo "Versie ${{ steps.release_info.outputs.semVer }}"
+          echo "ReleaseName ${{ steps.release_info.outputs.releaseName }}"
+
+      - name: Create publish-directories
+        run: |
+          mkdir -p tmpoutput/filler
+
+      - name: Copy Filler
+        working-directory: ./src/VipLive.Spreekuur.Uitnodigingen.Cypress/filler
+        run: |
+          sudo cp Dockerfile ../../../tmpoutput/filler
+          sudo cp filler.sql ../../../tmpoutput/filler
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: viplive-spreekuur-uitnodigingen-output
+          path: ./tmpoutput
+          retention-days: 1
+  
+  docker-build-push-cloudsmith:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build-e2e-test]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: viplive-spreekuur-uitnodigingen-output
+          path: tmpoutput
+
+      - name: Login to Cloudsmith
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.CLOUDSMITH_REGISTRY }}
+          username: ${{ secrets.VIPLIVE_CLOUDSMITH_USERNAME }}
+          password: ${{ secrets.VIPLIVE_CLOUDSMITH_TOKEN }}
+
+      - name: Build Filler Image
+        working-directory: tmpoutput/filler
+        run: |
+          ls -al
+          docker build . -t ${{ env.CLOUDSMITH_REPOSITORY_NAME }}/${{ env.CLOUDSMITH_VIPLIVE_SPREEKUUR_UITNODIGINGEN_FILLER_IMAGE }}:${{ needs.build-e2e-test.outputs.link-version }}
+
+      - name: Tag Filler Image as Latest
+        run: docker tag ${{ env.CLOUDSMITH_REPOSITORY_NAME }}/${{ env.CLOUDSMITH_VIPLIVE_SPREEKUUR_UITNODIGINGEN_FILLER_IMAGE }}:${{ needs.build-e2e-test.outputs.link-version }} ${{ env.CLOUDSMITH_REPOSITORY_NAME }}/${{ env.CLOUDSMITH_VIPLIVE_SPREEKUUR_UITNODIGINGEN_FILLER_IMAGE }}:latest
+
+      - name: Push Filler Image to Cloudsmith
+        run: |
+          docker push ${{ env.CLOUDSMITH_REPOSITORY_NAME }}/${{ env.CLOUDSMITH_VIPLIVE_SPREEKUUR_UITNODIGINGEN_FILLER_IMAGE }}:${{ needs.build-e2e-test.outputs.link-version }}
+          docker push ${{ env.CLOUDSMITH_REPOSITORY_NAME }}/${{ env.CLOUDSMITH_VIPLIVE_SPREEKUUR_UITNODIGINGEN_FILLER_IMAGE }}:latest
