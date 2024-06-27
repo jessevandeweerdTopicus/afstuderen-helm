@@ -87,8 +87,3 @@ jobs:
 
       - name: Tag Filler Image as Latest
         run: docker tag ${{ env.CLOUDSMITH_REPOSITORY_NAME }}/${{ env.CLOUDSMITH_VIPLIVE_SPREEKUUR_UITNODIGINGEN_FILLER_IMAGE }}:${{ needs.build-e2e-test.outputs.link-version }} ${{ env.CLOUDSMITH_REPOSITORY_NAME }}/${{ env.CLOUDSMITH_VIPLIVE_SPREEKUUR_UITNODIGINGEN_FILLER_IMAGE }}:latest
-
-      - name: Push Filler Image to Cloudsmith
-        run: |
-          docker push ${{ env.CLOUDSMITH_REPOSITORY_NAME }}/${{ env.CLOUDSMITH_VIPLIVE_SPREEKUUR_UITNODIGINGEN_FILLER_IMAGE }}:${{ needs.build-e2e-test.outputs.link-version }}
-          docker push ${{ env.CLOUDSMITH_REPOSITORY_NAME }}/${{ env.CLOUDSMITH_VIPLIVE_SPREEKUUR_UITNODIGINGEN_FILLER_IMAGE }}:latest
